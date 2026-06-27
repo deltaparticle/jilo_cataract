@@ -24,4 +24,5 @@ COPY . .
 EXPOSE 80
 
 # Command to launch the API
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "80"]
+CMD uvicorn main:app --host 0.0.0.0 --port $PORT
+

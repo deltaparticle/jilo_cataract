@@ -70,18 +70,11 @@
             color: var(--color-navy);
         }
 
-        .logo-circle {
-            height: 38px;
-            width: 38px;
+        .logo-img {
+            height: 40px;
+            width: 40px;
             border-radius: 50%;
-            background-color: var(--color-navy);
-            color: var(--bg-cream);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-family: 'Instrument Serif', serif;
-            font-size: 1.4rem;
-            font-weight: 800;
+            object-fit: cover;
         }
 
         .logo-text {
@@ -92,18 +85,22 @@
         }
 
         .nav-back-link {
-            font-size: 0.85rem;
-            font-weight: 500;
-            color: var(--color-muted);
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #ffffff;
+            background-color: var(--color-navy);
+            border-radius: 9999px;
+            padding: 8px 16px;
             text-decoration: none;
-            display: flex;
+            display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: color 0.2s;
+            transition: background-color 0.2s;
         }
 
         .nav-back-link:hover {
-            color: var(--color-navy);
+            background-color: var(--color-blue);
+            color: #ffffff;
         }
 
         .nav-actions {
@@ -912,11 +909,12 @@
 
         .gauge-svg-wrapper {
             position: relative;
-            height: 96px;
-            width: 96px;
+            height: 120px;
+            width: 120px;
             display: flex;
             align-items: center;
             justify-content: center;
+            flex-shrink: 0;
         }
 
         .gauge-svg {
@@ -929,8 +927,8 @@
 
         .gauge-circle-val {
             stroke-linecap: round;
-            stroke-dasharray: 251.2;
-            stroke-dashoffset: 251.2;
+            stroke-dasharray: 314.2;
+            stroke-dashoffset: 314.2;
             transition: stroke-dashoffset 0.8s ease-in-out;
         }
 
@@ -1205,9 +1203,9 @@
 
     <!-- Header Navigation -->
     <header>
-        <div className="nav-container">
+        <div class="nav-container">
             <a href="/" class="logo-group">
-                <div class="logo-circle">J</div>
+                <img src="https://jilocosmos.in/__l5e/assets-v1/03bd451d-8141-44fc-a8d2-81cafd9e287d/jilo-logo.png" alt="Jilo Health Logo" class="logo-img">
                 <span class="logo-text">Jilo Health</span>
             </a>
             <div class="nav-actions">
@@ -1257,10 +1255,7 @@
             
             <!-- Left Console: Scanner Upload interface -->
             <div class="card">
-                <div class="card-connection-tag" id="connection-indicator">
-                    <span class="status-dot"></span>
-                    API: LOCAL
-                </div>
+
 
                 <div class="scanner-container">
                     
@@ -1416,11 +1411,11 @@
                         <div class="gauge-header-label">Model Evaluation Confidence</div>
                         <div class="gauge-body">
                             <div class="gauge-svg-wrapper">
-                                <svg class="gauge-svg" width="96" height="96" viewBox="0 0 96 96">
-                                    <circle class="gauge-circle-bg" cx="48" cy="48" r="40" stroke-width="8" fill="transparent" />
-                                    <circle class="gauge-circle-val" id="gauge-circle-val" cx="48" cy="48" r="40" stroke-width="8" fill="transparent" />
+                                <svg class="gauge-svg" width="120" height="120" viewBox="0 0 120 120">
+                                    <circle class="gauge-circle-bg" cx="60" cy="60" r="50" stroke-width="8" fill="transparent" />
+                                    <circle class="gauge-circle-val" id="gauge-circle-val" cx="60" cy="60" r="50" stroke-width="8" fill="transparent" />
                                 </svg>
-                                <span class="gauge-text" id="gauge-confidence-text">--%</span>
+                                <span class="gauge-text" id="gauge-confidence-text" style="font-size: 1.15rem;">--%</span>
                             </div>
                             <div class="gauge-explain">
                                 <h6 class="gauge-explain-title" id="gauge-title">Certainty Assessment</h6>
@@ -1551,7 +1546,7 @@
         const stateLoading = document.getElementById('state-loading');
         const stateResults = document.getElementById('state-results');
 
-        const connectionIndicator = document.getElementById('connection-indicator');
+
 
         // Modal Settings Elements
         const settingsTrigger = document.getElementById('settings-trigger');
@@ -1564,24 +1559,13 @@
         let localStream = null;
         let apiUrl = '/predict';
 
-        // Load API URL settings
+        // API settings config logic
         const storedApiUrl = localStorage.getItem('jilo_diagnostics_api_url');
         if (storedApiUrl) {
             apiUrl = storedApiUrl;
             apiUrlInput.value = apiUrl;
         } else {
             apiUrlInput.value = apiUrl;
-        }
-        updateApiTag();
-
-        function updateApiTag() {
-            if (apiUrl === '/predict') {
-                connectionIndicator.innerHTML = '<span class="status-dot"></span> API: LOCAL';
-                connectionIndicator.style.backgroundColor = 'var(--color-yellow-soft)';
-            } else {
-                connectionIndicator.innerHTML = '<span class="status-dot" style="background-color: var(--color-blue)"></span> API: REMOTE';
-                connectionIndicator.style.backgroundColor = '#e0e7ff';
-            }
         }
 
         // Settings Modal events
@@ -1596,7 +1580,6 @@
         settingsSave.addEventListener('click', () => {
             apiUrl = apiUrlInput.value.trim() || '/predict';
             localStorage.setItem('jilo_diagnostics_api_url', apiUrl);
-            updateApiTag();
             settingsModal.style.display = 'none';
         });
 
@@ -1836,8 +1819,8 @@
             const confText = document.getElementById('gauge-confidence-text');
             const gaugeTitle = document.getElementById('gauge-title');
             
-            // strokeDasharray = 251.2
-            const offsetVal = 251.2 - (251.2 * percentVal) / 100;
+            // strokeDasharray = 314.2
+            const offsetVal = 314.2 - (314.2 * percentVal) / 100;
             circleVal.style.strokeDashoffset = offsetVal;
             
             if (data.prediction === 'Cataract') {

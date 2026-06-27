@@ -14,6 +14,9 @@ RUN pip install --no-cache-dir torch torchvision --index-url https://download.py
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Pre-download and cache DINOv2-small from Hugging Face to avoid startup timeouts
+RUN python -c "from transformers import AutoImageProcessor, AutoModel; AutoImageProcessor.from_pretrained('facebook/dinov2-small'); AutoModel.from_pretrained('facebook/dinov2-small')"
+
 # Copy models, configurations, static site, and API logic
 COPY . .
 

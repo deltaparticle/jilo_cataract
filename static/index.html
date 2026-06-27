@@ -3,174 +3,784 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cataract Diagnostics AI</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <title>Jilo Health — AI Diagnostics Scanner</title>
+    <!-- Google Fonts: Inter for Body, Instrument Serif for Headings -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-color: #0d1117;
-            --card-bg: rgba(22, 27, 34, 0.7);
-            --border-color: rgba(240, 246, 252, 0.1);
-            --primary-accent: #58a6ff;
-            --success-color: #2ea44f;
-            --warning-color: #f78166;
-            --text-main: #f0f6fc;
-            --text-secondary: #8b949e;
+            /* Jilo Health Bespoke Palette (translated from oklch) */
+            --bg-cream: #faf9f6;
+            --color-navy: #192130;
+            --color-navy-soft: #242e42;
+            --color-blue: #3b66d4;
+            --color-yellow: #dfb332;
+            --color-yellow-soft: #fbf5df;
+            --color-ink: #1f2228;
+            --color-muted: #6c7381;
+            --color-line: #e3e6eb;
+            --card-bg: #ffffff;
+            
+            --success-color: #2da44e;
+            --warning-color: #cf222e;
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Outfit', sans-serif;
         }
 
         body {
-            background-color: var(--bg-color);
-            background-image: radial-gradient(circle at 10% 20%, rgba(88, 166, 255, 0.05) 0%, transparent 40%),
-                              radial-gradient(circle at 90% 80%, rgba(247, 129, 102, 0.03) 0%, transparent 40%);
-            color: var(--text-main);
+            background-color: var(--bg-cream);
+            color: var(--color-ink);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
             min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Navigation Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
+            border-b: 1px solid rgba(227, 230, 235, 0.8);
+            background-color: rgba(250, 249, 246, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 24px;
+        }
+
+        .logo-group {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: var(--color-navy);
+        }
+
+        .logo-circle {
+            height: 38px;
+            width: 38px;
+            border-radius: 50%;
+            background-color: var(--color-navy);
+            color: var(--bg-cream);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .logo-text {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.4rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .nav-back-link {
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--color-muted);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: color 0.2s;
+        }
+
+        .nav-back-link:hover {
+            color: var(--color-navy);
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .settings-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 50%;
+            color: var(--color-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
+        }
+
+        .settings-btn:hover {
+            background-color: rgba(227, 230, 235, 0.5);
+        }
+
+        /* Settings Modal */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background-color: rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 16px;
+        }
+
+        .modal-card {
+            width: 100%;
+            max-width: 440px;
+            background-color: #ffffff;
+            border: 1px solid var(--color-line);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: 0 20px 40px -15px rgba(25, 33, 48, 0.2);
+            animation: modalPop 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes modalPop {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .modal-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.6rem;
+            color: var(--color-navy);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 50%;
+            color: var(--color-muted);
+        }
+
+        .modal-close:hover {
+            background-color: #f3f4f6;
+        }
+
+        .form-group {
+            margin-top: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--color-navy);
+            margin-bottom: 6px;
+        }
+
+        .form-input {
+            width: 100%;
+            border: 1px solid var(--color-line);
+            border-radius: 12px;
+            padding: 10px 14px;
+            font-size: 0.9rem;
+            background-color: #f9fafb;
+            color: var(--color-ink);
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            border-color: var(--color-blue);
+        }
+
+        .modal-btn {
+            width: 100%;
+            margin-top: 24px;
+            background-color: var(--color-navy);
+            color: #ffffff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .modal-btn:hover {
+            background-color: var(--color-blue);
+        }
+
+        /* Layout Grid */
+        main {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 48px 24px;
+            width: 100%;
+            flex-grow: 1;
+        }
+
+        .hero-section {
+            max-width: 720px;
+            margin-bottom: 40px;
+        }
+
+        .eyebrow {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.18em;
+            color: var(--color-blue);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        h1 {
+            font-family: 'Instrument Serif', serif;
+            font-size: 3rem;
+            font-weight: 500;
+            line-height: 1.1;
+            color: var(--color-navy);
+            letter-spacing: -0.02em;
+        }
+
+        .hero-desc {
+            margin-top: 12px;
+            color: var(--color-muted);
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+
+        .dashboard-grid {
+            display: grid;
+            gap: 40px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 1024px) {
+            .dashboard-grid {
+                grid-template-columns: 1fr 1.2fr;
+            }
+        }
+
+        /* Card Primitive */
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--color-line);
+            border-radius: 24px;
+            padding: 32px;
+            box-shadow: 0 4px 15px rgba(25, 33, 48, 0.02);
+            position: relative;
+        }
+
+        .card-connection-tag {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 20px;
+            background-color: var(--color-yellow-soft);
+            padding: 4px 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--color-navy);
+        }
+
+        .status-dot {
+            height: 6px;
+            width: 6px;
+            border-radius: 50%;
+            background-color: #10b981;
+            animation: pulse 1.8s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.4; }
+            50% { opacity: 1; }
+            100% { opacity: 0.4; }
+        }
+
+        /* Camera / Upload Console */
+        .scanner-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .drop-zone {
+            aspect-ratio: 1;
+            width: 100%;
+            border-radius: 20px;
+            border: 2px dashed var(--color-line);
+            background-color: rgba(250, 249, 246, 0.4);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 800px;
-            width: 100%;
-            text-align: center;
-        }
-
-        h1 {
-            font-size: 2.8rem;
-            font-weight: 800;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #58a6ff, #1f6feb);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .subtitle {
-            color: var(--text-secondary);
-            font-size: 1.1rem;
-            margin-bottom: 30px;
-        }
-
-        .card {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 20px;
-            padding: 40px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-            margin-bottom: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .upload-area {
-            border: 2px dashed rgba(88, 166, 255, 0.4);
-            border-radius: 15px;
-            padding: 40px 20px;
             cursor: pointer;
-            position: relative;
-            background: rgba(22, 27, 34, 0.4);
-            transition: border-color 0.3s, background 0.3s;
+            padding: 24px;
+            text-align: center;
+            transition: border-color 0.2s, background-color 0.2s;
         }
 
-        .upload-area:hover, .upload-area.drag-over {
-            border-color: var(--primary-accent);
-            background: rgba(88, 166, 255, 0.05);
+        .drop-zone:hover, .drop-zone.drag-over {
+            border-color: rgba(59, 102, 212, 0.5);
+            background-color: rgba(223, 179, 50, 0.05);
         }
 
-        .upload-icon {
-            font-size: 3.5rem;
-            margin-bottom: 15px;
-            display: block;
+        .upload-icon-wrapper {
+            height: 64px;
+            width: 64px;
+            border-radius: 16px;
+            background-color: #ffffff;
+            border: 1px solid var(--color-line);
+            color: var(--color-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.01);
+            margin-bottom: 16px;
+            transition: transform 0.2s;
         }
 
-        .upload-text {
-            color: var(--text-main);
+        .drop-zone:hover .upload-icon-wrapper {
+            transform: scale(1.05);
+        }
+
+        .upload-title {
             font-weight: 600;
-            font-size: 1.1rem;
-            margin-bottom: 8px;
+            color: var(--color-navy);
+            font-size: 0.95rem;
+            margin-bottom: 4px;
         }
 
-        .upload-subtext {
-            color: var(--text-secondary);
-            font-size: 0.9rem;
+        .upload-desc {
+            font-size: 0.8rem;
+            color: var(--color-muted);
+            max-width: 260px;
+            line-height: 1.4;
         }
 
-        #file-input {
-            display: none;
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin: 16px 0;
+            width: 100%;
+            max-width: 200px;
         }
 
-        .preview-container {
-            margin-top: 25px;
-            display: none;
+        .divider-line {
+            height: 1px;
+            background-color: var(--color-line);
+            flex-grow: 1;
+        }
+
+        .divider-text {
+            font-size: 0.65rem;
+            font-weight: 700;
+            color: var(--color-muted);
+            letter-spacing: 0.1em;
+        }
+
+        .camera-btn {
+            border-radius: 12px;
+            border: 1px solid rgba(25, 33, 48, 0.2);
+            background-color: #ffffff;
+            color: var(--color-navy);
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 10px 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+            transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+        }
+
+        .camera-btn:hover {
+            background-color: var(--color-navy);
+            color: #ffffff;
+            border-color: var(--color-navy);
+        }
+
+        /* Live Camera Feed Screen */
+        .camera-screen {
+            position: relative;
+            aspect-ratio: 1;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            background-color: #000000;
+            border: 1px solid #1a202c;
+        }
+
+        .camera-video {
+            height: 100%;
+            width: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        /* Eye Alignment reticle overlay */
+        .reticle-overlay {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+        }
+
+        .reticle-ring {
+            height: 180px;
+            width: 180px;
+            border-radius: 50%;
+            border: 2px dashed var(--color-yellow);
+            opacity: 0.7;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: spinReticle 15s linear infinite;
+        }
+
+        @keyframes spinReticle {
+            to { transform: rotate(360deg); }
+        }
+
+        .reticle-inner-ring {
+            height: 160px;
+            width: 160px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .reticle-crosshair-h {
+            position: absolute;
+            height: 1px;
+            width: 240px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .reticle-crosshair-v {
+            position: absolute;
+            width: 1px;
+            height: 240px;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .camera-controls {
+            position: absolute;
+            bottom: 24px;
+            left: 0;
+            right: 0;
+            display: flex;
+            justify-content: center;
+            gap: 16px;
+            padding: 0 16px;
+        }
+
+        .cam-control-btn {
+            height: 48px;
+            border-radius: 24px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: transform 0.2s;
+        }
+
+        .cam-control-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .cam-cancel {
+            width: 48px;
+            background-color: rgba(239, 68, 68, 0.9);
+            color: #ffffff;
+        }
+
+        .cam-capture {
+            padding: 0 24px;
+            background-color: #ffffff;
+            color: var(--color-navy);
+            gap: 8px;
+        }
+
+        /* Image preview screen */
+        .preview-screen {
+            position: relative;
+            aspect-ratio: 1;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--color-line);
+            background-color: #f9fafb;
+            display: flex;
+            align-items: center;
             justify-content: center;
         }
 
         .preview-img {
-            max-width: 100%;
-            max-height: 250px;
-            border-radius: 12px;
-            border: 1px solid var(--border-color);
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #238636 0%, #2ea44f 100%);
-            border: none;
-            color: white;
-            padding: 14px 28px;
-            font-size: 1.1rem;
-            font-weight: 600;
-            border-radius: 10px;
-            cursor: pointer;
-            margin-top: 25px;
+            height: 100%;
             width: 100%;
-            transition: transform 0.2s, opacity 0.2s;
-            box-shadow: 0 4px 15px rgba(46, 164, 79, 0.3);
+            object-fit: cover;
         }
 
-        .btn:hover {
-            transform: translateY(-2px);
+        .preview-close {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            height: 36px;
+            width: 36px;
+            border-radius: 50%;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: #ffffff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.2s;
         }
 
-        .btn:active {
-            transform: translateY(0);
+        .preview-close:hover {
+            background-color: rgba(0, 0, 0, 0.8);
         }
 
-        /* Results & Loading animation Styles */
-        .loading {
-            display: none;
-            margin-top: 25px;
+        /* Scanning beam animation */
+        .scanning-laser-box {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(to bottom, transparent, rgba(59, 102, 212, 0.05), transparent);
+        }
+
+        .scanning-laser {
+            width: 100%;
+            height: 2px;
+            background-color: var(--color-blue);
+            box-shadow: 0 0 12px var(--color-blue);
+            animation: scan-beam 2.5s ease-in-out infinite;
+        }
+
+        @keyframes scan-beam {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(24rem); }
+            100% { transform: translateY(0); }
+        }
+
+        /* Trigger scanning actions button */
+        .action-btn {
+            width: 100%;
+            margin-top: 12px;
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+
+        .btn-primary {
+            background-color: var(--color-navy);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(25, 33, 48, 0.1);
+        }
+
+        .btn-primary:hover {
+            background-color: var(--color-blue);
+            box-shadow: 0 6px 16px rgba(59, 102, 212, 0.2);
+        }
+
+        .btn-secondary {
+            background-color: #ffffff;
+            border: 1px solid var(--color-line);
+            color: var(--color-navy);
+        }
+
+        .btn-secondary:hover {
+            background-color: #f9fafb;
+        }
+
+        .btn-disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+        }
+
+        /* Right Column Output Panels */
+        .report-placeholder {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .placeholder-card {
+            background-color: #ffffff;
+            border: 1px solid var(--color-line);
+            border-radius: 24px;
+            padding: 40px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .placeholder-icon {
+            height: 48px;
+            width: 48px;
+            border-radius: 12px;
+            background-color: var(--color-yellow-soft);
+            color: var(--color-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .placeholder-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.8rem;
+            color: var(--color-navy);
+        }
+
+        .step-list {
+            margin-top: 8px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            text-align: left;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .step-item {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+        }
+
+        .step-number {
+            height: 24px;
+            width: 24px;
+            border-radius: 6px;
+            background-color: var(--color-yellow-soft);
+            color: var(--color-navy);
+            font-size: 0.75rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step-label {
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--color-navy);
+        }
+
+        .step-body {
+            font-size: 0.75rem;
+            color: var(--color-muted);
+            margin-top: 2px;
+            line-height: 1.4;
+        }
+
+        .placeholder-note {
+            display: flex;
+            gap: 10px;
+            background-color: var(--color-yellow-soft);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: left;
+            font-size: 0.75rem;
+            color: var(--color-navy);
+            line-height: 1.4;
+            max-width: 380px;
+        }
+
+        /* Diagnostic Loader State */
+        .loader-card {
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px;
+            text-align: center;
+            gap: 16px;
         }
 
         .spinner {
-            width: 50px;
-            height: 50px;
-            border: 3px solid rgba(88, 166, 255, 0.2);
+            height: 38px;
+            width: 38px;
+            border: 3px solid rgba(59, 102, 212, 0.1);
             border-radius: 50%;
-            border-top-color: var(--primary-accent);
-            animation: spin 1s ease-in-out infinite;
-            margin: 0 auto 15px;
+            border-top-color: var(--color-blue);
+            animation: spin 1s linear infinite;
         }
 
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
 
-        .result-card {
-            display: none;
-            margin-top: 30px;
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid var(--border-color);
-            background: rgba(255, 255, 255, 0.02);
-            text-align: left;
-            animation: fadeIn 0.5s ease;
+        .loader-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.8rem;
+            color: var(--color-navy);
+        }
+
+        .loader-desc {
+            font-size: 0.85rem;
+            color: var(--color-muted);
+            max-width: 240px;
+            line-height: 1.4;
+        }
+
+        /* Diagnostic Results Report view */
+        .report-card {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            animation: fadeIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
         @keyframes fadeIn {
@@ -178,224 +788,1083 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        .result-header {
+        .report-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 20px;
+            border-bottom: 1px solid var(--color-line);
+            padding-bottom: 16px;
         }
 
-        .status-badge {
-            padding: 8px 16px;
-            border-radius: 30px;
-            font-weight: 800;
+        .report-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.8rem;
+            color: var(--color-navy);
+        }
+
+        .print-btn {
+            background-color: #ffffff;
+            border: 1px solid var(--color-line);
+            border-radius: 10px;
+            padding: 8px 14px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: var(--color-navy);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
+            transition: background 0.2s;
+        }
+
+        .print-btn:hover {
+            background-color: #f9fafb;
+        }
+
+        /* Primary diagnostic assessment banner */
+        .assessment-banner {
+            border-radius: 20px;
+            border: 1px solid var(--color-line);
+            padding: 24px;
+            display: flex;
+            align-items: start;
+            gap: 16px;
+        }
+
+        .banner-normal {
+            border-color: rgba(45, 164, 78, 0.2);
+            background-color: rgba(45, 164, 78, 0.03);
+        }
+
+        .banner-cataract {
+            border-color: rgba(207, 34, 46, 0.2);
+            background-color: rgba(207, 34, 46, 0.03);
+        }
+
+        .banner-icon {
+            height: 36px;
+            width: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .banner-icon-normal {
+            background-color: rgba(45, 164, 78, 0.1);
+            color: var(--success-color);
+        }
+
+        .banner-icon-cataract {
+            background-color: rgba(207, 34, 46, 0.1);
+            color: var(--warning-color);
+        }
+
+        .banner-label {
+            font-size: 0.7rem;
+            font-weight: 700;
             text-transform: uppercase;
-            font-size: 0.9rem;
+            letter-spacing: 0.06em;
+            color: var(--color-muted);
         }
 
-        .status-normal {
-            background-color: rgba(46, 164, 79, 0.2);
-            color: #56d364;
-            border: 1px solid rgba(46, 164, 79, 0.4);
+        .banner-heading {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.8rem;
+            color: var(--color-navy);
+            margin-top: 2px;
         }
 
-        .status-cataract {
-            background-color: rgba(247, 129, 102, 0.2);
-            color: #ff7b72;
-            border: 1px solid rgba(247, 129, 102, 0.4);
+        .banner-desc {
+            font-size: 0.8rem;
+            line-height: 1.4;
+            margin-top: 8px;
         }
 
-        .probability-bar-container {
-            margin-top: 15px;
+        .banner-desc-normal { color: #1e6231; }
+        .banner-desc-cataract { color: #8c1c24; }
+
+        /* Confidence Gauge SVG block */
+        .gauge-section {
+            border: 1px solid var(--color-line);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
         }
 
-        .bar-label {
+        .gauge-header-label {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-navy);
+        }
+
+        .gauge-body {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .gauge-svg-wrapper {
+            position: relative;
+            height: 96px;
+            width: 96px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gauge-svg {
+            transform: rotate(-90deg);
+        }
+
+        .gauge-circle-bg {
+            stroke: #f3f4f6;
+        }
+
+        .gauge-circle-val {
+            stroke-linecap: round;
+            stroke-dasharray: 251.2;
+            stroke-dashoffset: 251.2;
+            transition: stroke-dashoffset 0.8s ease-in-out;
+        }
+
+        .gauge-val-normal { stroke: var(--success-color); }
+        .gauge-val-cataract { stroke: var(--color-blue); }
+
+        .gauge-text {
+            position: absolute;
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--color-navy);
+        }
+
+        .gauge-explain {
+            flex-grow: 1;
+        }
+
+        .gauge-explain-title {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--color-navy);
+        }
+
+        .gauge-explain-body {
+            font-size: 0.75rem;
+            color: var(--color-muted);
+            line-height: 1.4;
+            margin-top: 4px;
+        }
+
+        /* Probabilities bars */
+        .bar-container {
+            border-top: 1px solid var(--color-line);
+            padding-top: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .bar-label-group {
             display: flex;
             justify-content: space-between;
-            font-size: 0.95rem;
-            color: var(--text-secondary);
-            margin-bottom: 5px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--color-navy);
+            margin-bottom: 6px;
         }
 
         .bar-track {
-            height: 10px;
+            height: 8px;
             width: 100%;
-            background-color: #21262d;
-            border-radius: 5px;
+            background-color: #f3f4f6;
+            border-radius: 4px;
             overflow: hidden;
         }
 
         .bar-fill {
             height: 100%;
-            border-radius: 5px;
+            border-radius: 4px;
+            width: 0%;
             transition: width 0.8s cubic-bezier(0.1, 0.8, 0.3, 1);
         }
 
-        .normal-fill { background-color: var(--success-color); }
-        .cataract-fill { background-color: var(--warning-color); }
+        .fill-normal { background-color: var(--success-color); }
+        .fill-cataract { background-color: var(--color-yellow); }
+
+        /* Clinical recommendation protocols */
+        .recs-card {
+            border: 1px solid var(--color-line);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .recs-title {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: var(--color-navy);
+        }
+
+        .recs-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .recs-item {
+            font-size: 0.75rem;
+            color: var(--color-muted);
+            line-height: 1.4;
+            display: flex;
+            align-items: start;
+            gap: 8px;
+        }
+
+        .recs-icon {
+            margin-top: 2px;
+            flex-shrink: 0;
+        }
+
+        .recs-normal-icon { color: var(--success-color); }
+        .recs-cataract-icon { color: var(--color-yellow); }
+
+        /* Disclaimer statement */
+        .disclaimer-card {
+            border: 1px dashed var(--color-line);
+            background-color: rgba(250, 249, 246, 0.4);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            gap: 12px;
+            font-size: 0.65rem;
+            line-height: 1.4;
+            color: var(--color-muted);
+        }
+
+        .disclaimer-icon {
+            flex-shrink: 0;
+            color: var(--color-blue);
+            margin-top: 1px;
+        }
+
+        .disclaimer-bold {
+            font-weight: 700;
+            text-transform: uppercase;
+            color: var(--color-navy);
+        }
+
+        /* Scientific Architecture Section */
+        .science-section {
+            margin-top: 80px;
+            border-top: 1px solid rgba(227, 230, 235, 0.8);
+            padding-top: 64px;
+        }
+
+        .science-header {
+            max-width: 680px;
+            margin-bottom: 40px;
+        }
+
+        .science-title {
+            font-family: 'Instrument Serif', serif;
+            font-size: 2.2rem;
+            color: var(--color-navy);
+            margin-top: 4px;
+        }
+
+        .science-grid {
+            display: grid;
+            gap: 24px;
+            grid-template-columns: 1fr;
+        }
+
+        @media (min-width: 768px) {
+            .science-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        .science-card {
+            background-color: #ffffff;
+            border: 1px solid var(--color-line);
+            border-radius: 20px;
+            padding: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .science-icon-box {
+            height: 40px;
+            width: 40px;
+            border-radius: 10px;
+            background-color: var(--color-yellow-soft);
+            color: var(--color-navy);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .science-card-title {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--color-navy);
+        }
+
+        .science-card-body {
+            font-size: 0.75rem;
+            color: var(--color-muted);
+            line-height: 1.45;
+        }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--color-line);
+            background-color: var(--bg-cream);
+            padding: 40px 0;
+            margin-top: 80px;
+        }
+
+        .footer-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: space-between;
+            gap: 20px;
+            padding: 0 24px;
+        }
+
+        @media (min-width: 768px) {
+            .footer-container {
+                flex-direction: row;
+            }
+        }
+
+        .footer-logo-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .footer-logo-text {
+            font-family: 'Instrument Serif', serif;
+            font-size: 1.15rem;
+            color: var(--color-navy);
+            font-weight: 600;
+        }
+
+        .footer-copy {
+            font-size: 0.75rem;
+            color: var(--color-muted);
+        }
+
+        /* Print formatting */
+        @media print {
+            header, .settings-btn, .nav-back-link, .card-connection-tag, 
+            .preview-close, .action-btn, .print-btn, .science-section, footer {
+                display: none !important;
+            }
+
+            body, main {
+                background-color: #ffffff !important;
+                color: #000000 !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+
+            .dashboard-grid {
+                grid-template-columns: 1fr !important;
+            }
+
+            .card {
+                border: none !important;
+                box-shadow: none !important;
+                padding: 0 !important;
+            }
+            
+            .report-card {
+                gap: 16px !important;
+            }
+        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>Cataract Diagnostics AI</h1>
-    <p class="subtitle">Upload a close-up image of the eye for real-time model analysis.</p>
-
-    <div class="card">
-        <div class="upload-area" id="drop-zone" onclick="document.getElementById('file-input').click()">
-            <span class="upload-icon">👁️</span>
-            <p class="upload-text">Drag & Drop eye image here or click to browse</p>
-            <p class="upload-subtext">Supports PNG, JPG, or JPEG formats</p>
-            <input type="file" id="file-input" accept="image/*">
-        </div>
-
-        <div class="preview-container" id="preview-container">
-            <img src="" alt="Eye Preview" class="preview-img" id="preview-img">
-        </div>
-
-        <button class="btn" id="scan-btn" style="display: none;" onclick="analyzeImage()">Analyze Scan</button>
-
-        <div class="loading" id="loading">
-            <div class="spinner"></div>
-            <p style="color: var(--text-secondary)">Running QAT DINOv2 + SVM pipeline...</p>
-        </div>
-
-        <div class="result-card" id="result-card">
-            <div class="result-header">
-                <h3>Analysis Results</h3>
-                <span class="status-badge" id="result-badge"></span>
+    <!-- Header Navigation -->
+    <header>
+        <div className="nav-container">
+            <a href="/" class="logo-group">
+                <div class="logo-circle">J</div>
+                <span class="logo-text">Jilo Health</span>
+            </a>
+            <div class="nav-actions">
+                <a href="https://jilocosmos.in/" class="nav-back-link">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                    Back to Corporate Site
+                </a>
+                <button class="settings-btn" id="settings-trigger" title="API Endpoint settings">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                </button>
             </div>
-            
-            <p style="color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
-                Confidence: <strong id="result-confidence" style="color: var(--text-main)"></strong>
+        </div>
+    </header>
+
+    <!-- Settings Modal -->
+    <div class="modal-overlay" id="settings-modal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3 class="modal-title">Diagnostics API Settings</h3>
+                <button class="modal-close" id="settings-close">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <p style="font-size: 0.75rem; color: var(--color-muted); line-height: 1.45;">
+                Configure the dynamic backend endpoint hosting the cataract prediction pipeline. If deployed unified, keep as the relative route `/predict`.
             </p>
-
-            <div class="probability-bar-container">
-                <div class="bar-label">
-                    <span>Normal Score</span>
-                    <span id="normal-percent">0%</span>
-                </div>
-                <div class="bar-track">
-                    <div class="bar-fill normal-fill" id="normal-bar" style="width: 0%"></div>
-                </div>
+            <div class="form-group">
+                <label class="form-label" for="api-url-input">API Endpoint URL</label>
+                <input class="form-input" type="text" id="api-url-input" placeholder="/predict or https://api-domain.com/predict">
             </div>
-
-            <div class="probability-bar-container" style="margin-top: 20px;">
-                <div class="bar-label">
-                    <span>Cataract Score</span>
-                    <span id="cataract-percent">0%</span>
-                </div>
-                <div class="bar-track">
-                    <div class="bar-fill cataract-fill" id="cataract-bar" style="width: 0%"></div>
-                </div>
-            </div>
+            <button class="modal-btn" id="settings-save">Save Endpoint Configuration</button>
         </div>
     </div>
-</div>
 
-<script>
-    const fileInput = document.getElementById('file-input');
-    const dropZone = document.getElementById('drop-zone');
-    const previewContainer = document.getElementById('preview-container');
-    const previewImg = document.getElementById('preview-img');
-    const scanBtn = document.getElementById('scan-btn');
-    const loading = document.getElementById('loading');
-    const resultCard = document.getElementById('result-card');
-    
-    let selectedFile = null;
+    <!-- Main Container -->
+    <main>
+        <div class="hero-section">
+            <div class="eyebrow">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg>
+                AI Diagnostics Platform
+            </div>
+            <h1>Cataract Diagnostics</h1>
+            <p class="hero-desc">Smartphone-based visual health screening. Follow the alignment reticle overlays using your device camera or upload a raw eye image file below to run analysis.</p>
+        </div>
 
-    // Handle Drag & Drop events
-    ['dragenter', 'dragover'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropZone.classList.add('drag-over');
-        }, false);
-    });
-
-    ['dragleave', 'drop'].forEach(eventName => {
-        dropZone.addEventListener(eventName, (e) => {
-            e.preventDefault();
-            dropZone.classList.remove('drag-over');
-        }, false);
-    });
-
-    dropZone.addEventListener('drop', (e) => {
-        const dt = e.dataTransfer;
-        const files = dt.files;
-        if(files.length > 0) handleFile(files[0]);
-    });
-
-    fileInput.addEventListener('change', (e) => {
-        if(e.target.files.length > 0) handleFile(e.target.files[0]);
-    });
-
-    function handleFile(file) {
-        if (!file.type.startsWith('image/')) {
-            alert('Please drop an image file.');
-            return;
-        }
-        selectedFile = file;
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            previewImg.src = e.target.result;
-            previewContainer.style.display = 'flex';
-            scanBtn.style.display = 'block';
-            resultCard.style.display = 'none';
-        }
-        reader.readAsDataURL(file);
-    }
-
-    async function analyzeImage() {
-        if (!selectedFile) return;
-
-        scanBtn.style.display = 'none';
-        resultCard.style.display = 'none';
-        loading.style.display = 'block';
-
-        const formData = new FormData();
-        formData.append('file', selectedFile);
-
-        try {
-            const response = await fetch('/predict', {
-                method: 'POST',
-                body: formData
-            });
-
-            if (!response.ok) throw new Error('API server responded with error');
-            const data = await response.json();
+        <div class="dashboard-grid">
             
-            loading.style.display = 'none';
-            resultCard.style.display = 'block';
+            <!-- Left Console: Scanner Upload interface -->
+            <div class="card">
+                <div class="card-connection-tag" id="connection-indicator">
+                    <span class="status-dot"></span>
+                    API: LOCAL
+                </div>
 
-            // Update badge UI
-            const badge = document.getElementById('result-badge');
-            badge.innerText = data.prediction;
-            if (data.prediction === 'Normal') {
-                badge.className = 'status-badge status-normal';
+                <div class="scanner-container">
+                    
+                    <!-- File Drag Drop Block -->
+                    <div class="drop-zone" id="drop-zone">
+                        <input type="file" id="file-input" style="display: none;" accept="image/*">
+                        <div class="upload-icon-wrapper">
+                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                        </div>
+                        <p class="upload-title">Upload Eye Scan</p>
+                        <p class="upload-desc">Drag & drop your ophthalmic scan image here, or select a file to upload.</p>
+                        
+                        <div class="divider">
+                            <div class="divider-line"></div>
+                            <span class="divider-text">OR</span>
+                            <div class="divider-line"></div>
+                        </div>
+
+                        <button class="camera-btn" id="camera-trigger">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"></path><circle cx="12" cy="13" r="4"></circle></svg>
+                            Use Device Camera
+                        </button>
+                    </div>
+
+                    <!-- Live Camera Feed (Initially Hidden) -->
+                    <div class="camera-screen" id="camera-screen" style="display: none;">
+                        <video class="camera-video" id="camera-video" autoplay playsinline></video>
+                        <canvas id="camera-canvas" style="display: none;"></canvas>
+                        
+                        <!-- Circular Reticle Overlay -->
+                        <div class="reticle-overlay">
+                            <div class="reticle-ring">
+                                <div class="reticle-inner-ring"></div>
+                            </div>
+                            <div class="reticle-crosshair-h"></div>
+                            <div class="reticle-crosshair-v"></div>
+                        </div>
+
+                        <div class="camera-controls">
+                            <button class="cam-control-btn cam-cancel" id="camera-cancel" title="Cancel camera">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                            </button>
+                            <button class="cam-control-btn cam-capture" id="camera-capture">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="3"></circle></svg>
+                                Capture Photo
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Image Preview Area (Initially Hidden) -->
+                    <div class="preview-screen" id="preview-screen" style="display: none;">
+                        <img class="preview-img" id="preview-img" src="" alt="Eye preview">
+                        <button class="preview-close" id="preview-reset" title="Clear image">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                        </button>
+                        
+                        <!-- Scanning laser bar (Visible during computation) -->
+                        <div class="scanning-laser-box" id="scanning-laser" style="display: none;">
+                            <div class="scanning-laser"></div>
+                        </div>
+                    </div>
+
+                    <button class="action-btn btn-primary" id="run-btn" style="display: none;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-4l-3 9L9 3l-3 9H2"></path></svg>
+                        Run Diagnostics
+                    </button>
+                    
+                    <button class="action-btn btn-secondary" id="reset-btn" style="display: none;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path></svg>
+                        Screen Another Patient
+                    </button>
+
+                </div>
+            </div>
+
+            <!-- Right Output Console -->
+            <div id="output-pane">
+                
+                <!-- State 1: Awaiting Scan Instruction (Default) -->
+                <div class="report-placeholder" id="state-awaiting">
+                    <div class="placeholder-card">
+                        <div class="placeholder-icon">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12h4l3 9L9 3l-3 9H2"></path></svg>
+                        </div>
+                        <h3 class="placeholder-title">Awaiting Diagnostics Scan</h3>
+                        
+                        <div class="step-list">
+                            <div class="step-item">
+                                <div class="step-number">1</div>
+                                <div>
+                                    <h5 class="step-label">Acquire Macro Pupil Focus</h5>
+                                    <p class="step-body">Align the patient's iris under uniform, diffuse ambient lighting. Avoid bright specular glare on the cornea.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">2</div>
+                                <div>
+                                    <h5 class="step-label">Feature Map Extraction</h5>
+                                    <p class="step-body">A compressed 8-layer Vision Transformer (DINOv2) processes the optical image to extract key structural parameters.</p>
+                                </div>
+                            </div>
+                            
+                            <div class="step-item">
+                                <div class="step-number">3</div>
+                                <div>
+                                    <h5 class="step-label">Support Vector Classification</h5>
+                                    <p class="step-body">Features are compressed via PCA to 64 components and classified by an RBF SVM to evaluate lens density.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="placeholder-note">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; color:var(--color-blue)"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                            <div>
+                                <span style="font-weight: 700;">Diagnostic Advisory:</span> For optimal screening performance, avoid low-light uploads or motion-blurred captures.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- State 2: Model Inference Execution (Loading) -->
+                <div class="report-placeholder" id="state-loading" style="display: none;">
+                    <div class="placeholder-card loader-card">
+                        <div class="spinner"></div>
+                        <h3 class="loader-title">Evaluating Lens Density...</h3>
+                        <p class="loader-desc">Running QAT dynamic quantization feature extractor and resolving PCA support vectors.</p>
+                    </div>
+                </div>
+
+                <!-- State 3: Assessment Report (Results Loaded) -->
+                <div class="card report-card" id="state-results" style="display: none;">
+                    <div class="report-header">
+                        <h3 class="report-title">Diagnosis Assessment</h3>
+                        <button class="print-btn" onclick="window.print()">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                            Print Report
+                        </button>
+                    </div>
+
+                    <!-- Evaluation Banner -->
+                    <div class="assessment-banner" id="assessment-banner">
+                        <div class="banner-icon" id="assessment-banner-icon"></div>
+                        <div>
+                            <div class="banner-label">Screening Assessment</div>
+                            <h4 class="banner-heading" id="assessment-heading">--</h4>
+                            <p class="banner-desc" id="assessment-desc">--</p>
+                        </div>
+                    </div>
+
+                    <!-- Confidence Gauge -->
+                    <div class="gauge-section">
+                        <div class="gauge-header-label">Model Evaluation Confidence</div>
+                        <div class="gauge-body">
+                            <div class="gauge-svg-wrapper">
+                                <svg class="gauge-svg" width="96" height="96" viewBox="0 0 96 96">
+                                    <circle class="gauge-circle-bg" cx="48" cy="48" r="40" stroke-width="8" fill="transparent" />
+                                    <circle class="gauge-circle-val" id="gauge-circle-val" cx="48" cy="48" r="40" stroke-width="8" fill="transparent" />
+                                </svg>
+                                <span class="gauge-text" id="gauge-confidence-text">--%</span>
+                            </div>
+                            <div class="gauge-explain">
+                                <h6 class="gauge-explain-title" id="gauge-title">Certainty Assessment</h6>
+                                <p class="gauge-explain-body">Calculated using our compressed 8-layer transformer embeddings evaluated against target clinical datasets.</p>
+                            </div>
+                        </div>
+
+                        <!-- Mini probability score indicators -->
+                        <div class="bar-container">
+                            <div>
+                                <div class="bar-label-group">
+                                    <span>Normal Lens Index</span>
+                                    <span id="score-normal-text">0.0%</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill fill-normal" id="bar-normal" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="bar-label-group">
+                                    <span>Cataractous Lens Index</span>
+                                    <span id="score-cataract-text">0.0%</span>
+                                </div>
+                                <div class="bar-track">
+                                    <div class="bar-fill fill-cataract" id="bar-cataract" style="width: 0%;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Protocols -->
+                    <div class="recs-card">
+                        <h5 class="recs-title">Recommended Action Protocol</h5>
+                        <ul class="recs-list" id="recs-list">
+                            <!-- Populated dynamically -->
+                        </ul>
+                    </div>
+
+                    <!-- Clinical Disclaimer -->
+                    <div class="disclaimer-card">
+                        <svg class="disclaimer-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        <div>
+                            <span class="disclaimer-bold">Clinical Advisory:</span> This analysis is powered by a quantized neural network screening framework. It provides risk triage only and is NOT a substitute for formal slit-lamp exam or professional clinical eye diagnosis.
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- Technical Model Specs Section -->
+        <section class="science-section">
+            <div class="science-header">
+                <div class="eyebrow">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="2" y1="12" x2="22" y2="12"></line><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path></svg>
+                    Deeptech Architecture
+                </div>
+                <h2 class="science-title">Compressed QAT DINOv2 Pipeline</h2>
+                <p class="hero-desc">Achieving over 96% binary classification accuracy by compressing transformer weights down to 30.4MB for lightweight edge and CPU environments.</p>
+            </div>
+
+            <div class="science-grid">
+                <div class="science-card">
+                    <div class="science-icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="3" x2="9" y2="21"></line><line x1="15" y1="3" x2="15" y2="21"></line><line x1="3" y1="9" x2="21" y2="9"></line><line x1="3" y1="15" x2="21" y2="15"></line></svg>
+                    </div>
+                    <h4 class="science-card-title">Structured Pruning</h4>
+                    <p class="science-card-body">Dropped the final 4 layers of the standard 12-block DINOv2-small transformer, decreasing parameters to 15.0M while retaining 99% of crucial early edge and pattern sensitivities.</p>
+                </div>
+                
+                <div class="science-card">
+                    <div class="science-icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                    </div>
+                    <h4 class="science-card-title">Quantization-Aware Training</h4>
+                    <p class="science-card-body">Transformer MLP linear projections were fine-tuned with fake-quantization. Post-training static conversion maps weights to INT8, shrinking memory footprint to 30.4MB.</p>
+                </div>
+
+                <div class="science-card">
+                    <div class="science-icon-box">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path><path d="M12 8v8"></path></svg>
+                    </div>
+                    <h4 class="science-card-title">PCA + SVM Inference</h4>
+                    <p class="science-card-body">High-dimensional 384D embedding vectors are projected via PCA to 64 dimensions to reduce noise. An RBF SVM classifier computes the final diagnostic predictions.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-container">
+            <div class="footer-logo-group">
+                <div class="logo-circle" style="height:28px; width:28px; font-size: 1.05rem;">J</div>
+                <span class="footer-logo-text">Jilo Health</span>
+            </div>
+            <div class="footer-copy">
+                © <span id="year"></span> Jilo Health. Built for Bharat.
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.getElementById('year').textContent = new Date().getFullYear();
+
+        // State DOM Elements
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const cameraTrigger = document.getElementById('camera-trigger');
+        
+        const cameraScreen = document.getElementById('camera-screen');
+        const cameraVideo = document.getElementById('camera-video');
+        const cameraCancel = document.getElementById('camera-cancel');
+        const cameraCapture = document.getElementById('camera-capture');
+        const cameraCanvas = document.getElementById('camera-canvas');
+
+        const previewScreen = document.getElementById('preview-screen');
+        const previewImg = document.getElementById('preview-img');
+        const previewReset = document.getElementById('preview-reset');
+        const scanningLaser = document.getElementById('scanning-laser');
+
+        const runBtn = document.getElementById('run-btn');
+        const resetBtn = document.getElementById('reset-btn');
+
+        const stateAwaiting = document.getElementById('state-awaiting');
+        const stateLoading = document.getElementById('state-loading');
+        const stateResults = document.getElementById('state-results');
+
+        const connectionIndicator = document.getElementById('connection-indicator');
+
+        // Modal Settings Elements
+        const settingsTrigger = document.getElementById('settings-trigger');
+        const settingsModal = document.getElementById('settings-modal');
+        const settingsClose = document.getElementById('settings-close');
+        const settingsSave = document.getElementById('settings-save');
+        const apiUrlInput = document.getElementById('api-url-input');
+
+        let selectedFile = null;
+        let localStream = null;
+        let apiUrl = '/predict';
+
+        // Load API URL settings
+        const storedApiUrl = localStorage.getItem('jilo_diagnostics_api_url');
+        if (storedApiUrl) {
+            apiUrl = storedApiUrl;
+            apiUrlInput.value = apiUrl;
+        } else {
+            apiUrlInput.value = apiUrl;
+        }
+        updateApiTag();
+
+        function updateApiTag() {
+            if (apiUrl === '/predict') {
+                connectionIndicator.innerHTML = '<span class="status-dot"></span> API: LOCAL';
+                connectionIndicator.style.backgroundColor = 'var(--color-yellow-soft)';
             } else {
-                badge.className = 'status-badge status-cataract';
+                connectionIndicator.innerHTML = '<span class="status-dot" style="background-color: var(--color-blue)"></span> API: REMOTE';
+                connectionIndicator.style.backgroundColor = '#e0e7ff';
+            }
+        }
+
+        // Settings Modal events
+        settingsTrigger.addEventListener('click', () => {
+            settingsModal.style.display = 'flex';
+        });
+
+        settingsClose.addEventListener('click', () => {
+            settingsModal.style.display = 'none';
+        });
+
+        settingsSave.addEventListener('click', () => {
+            apiUrl = apiUrlInput.value.trim() || '/predict';
+            localStorage.setItem('jilo_diagnostics_api_url', apiUrl);
+            updateApiTag();
+            settingsModal.style.display = 'none';
+        });
+
+        // Drop Zone dragover highlight
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+            });
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            const dt = e.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) handleFileSelection(files[0]);
+        });
+
+        dropZone.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) handleFileSelection(e.target.files[0]);
+        });
+
+        function handleFileSelection(file) {
+            if (!file.type.startsWith('image/')) {
+                alert('Only image files are supported.');
+                return;
+            }
+            selectedFile = file;
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                previewImg.src = e.target.result;
+                dropZone.style.display = 'none';
+                cameraScreen.style.display = 'none';
+                previewScreen.style.display = 'flex';
+                runBtn.style.display = 'flex';
+                resetBtn.style.display = 'none';
+                
+                stateAwaiting.style.display = 'flex';
+                stateLoading.style.display = 'none';
+                stateResults.style.display = 'none';
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // Camera trigger events
+        cameraTrigger.addEventListener('click', (e) => {
+            e.stopPropagation();
+            startWebcam();
+        });
+
+        async function startWebcam() {
+            dropZone.style.display = 'none';
+            cameraScreen.style.display = 'flex';
+            previewScreen.style.display = 'none';
+            runBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+
+            try {
+                localStream = await navigator.mediaDevices.getUserMedia({
+                    video: { facingMode: 'environment' },
+                    audio: false
+                });
+                cameraVideo.srcObject = localStream;
+            } catch (err) {
+                console.error("Webcam open failed", err);
+                alert("Camera access denied or unavailable. Please upload a file instead.");
+                stopWebcam();
+            }
+        }
+
+        function stopWebcam() {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+                localStream = null;
+            }
+            cameraVideo.srcObject = null;
+            cameraScreen.style.display = 'none';
+            dropZone.style.display = 'flex';
+        }
+
+        cameraCancel.addEventListener('click', () => {
+            stopWebcam();
+        });
+
+        cameraCapture.addEventListener('click', () => {
+            if (cameraVideo.videoWidth > 0 && cameraCanvas) {
+                const ctx = cameraCanvas.getContext('2d');
+                cameraCanvas.width = cameraVideo.videoWidth;
+                cameraCanvas.height = cameraVideo.videoHeight;
+                ctx.drawImage(cameraVideo, 0, 0, cameraCanvas.width, cameraCanvas.height);
+                
+                cameraCanvas.toBlob((blob) => {
+                    if (blob) {
+                        const file = new File([blob], 'snapshot.jpg', { type: 'image/jpeg' });
+                        selectedFile = file;
+                        previewImg.src = URL.createObjectURL(file);
+                        
+                        // Show preview screen
+                        stopWebcam();
+                        dropZone.style.display = 'none';
+                        previewScreen.style.display = 'flex';
+                        runBtn.style.display = 'flex';
+                    }
+                }, 'image/jpeg');
+            }
+        });
+
+        previewReset.addEventListener('click', () => {
+            clearSelection();
+        });
+
+        function clearSelection() {
+            selectedFile = null;
+            previewImg.src = '';
+            previewScreen.style.display = 'none';
+            dropZone.style.display = 'flex';
+            runBtn.style.display = 'none';
+            resetBtn.style.display = 'none';
+            
+            stateAwaiting.style.display = 'flex';
+            stateLoading.style.display = 'none';
+            stateResults.style.display = 'none';
+            stopWebcam();
+        }
+
+        // Run analysis API call
+        runBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            runBtn.style.display = 'none';
+            previewReset.style.display = 'none';
+            scanningLaser.style.display = 'block';
+
+            stateAwaiting.style.display = 'none';
+            stateLoading.style.display = 'flex';
+
+            const formData = new FormData();
+            formData.append('file', selectedFile);
+
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Server returned HTTP ${response.status}. Please check your endpoint settings.`);
+                }
+
+                const data = await response.json();
+                renderReport(data);
+            } catch (err) {
+                console.error("API Error", err);
+                alert("Diagnostics Failed: " + err.message);
+                
+                // Rollback state
+                scanningLaser.style.display = 'none';
+                previewReset.style.display = 'flex';
+                runBtn.style.display = 'flex';
+                stateAwaiting.style.display = 'flex';
+                stateLoading.style.display = 'none';
+            }
+        });
+
+        function renderReport(data) {
+            scanningLaser.style.display = 'none';
+            stateLoading.style.display = 'none';
+            stateResults.style.display = 'flex';
+            resetBtn.style.display = 'flex';
+
+            // Set assessment banner
+            const banner = document.getElementById('assessment-banner');
+            const icon = document.getElementById('assessment-banner-icon');
+            const heading = document.getElementById('assessment-heading');
+            const desc = document.getElementById('assessment-desc');
+            const recsList = document.getElementById('recs-list');
+
+            recsList.innerHTML = ''; // clear
+
+            if (data.prediction === 'Cataract') {
+                banner.className = 'assessment-banner banner-cataract';
+                icon.className = 'banner-icon banner-icon-cataract';
+                icon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>';
+                heading.innerText = 'Cataractous Lens Opacity';
+                desc.className = 'banner-desc banner-desc-cataract';
+                desc.innerText = 'Model signature shows significant localized clouding in the crystalline lens. Prompt ophthalmic consultation is recommended.';
+
+                // Recs
+                recsList.innerHTML = `
+                    <li class="recs-item">
+                        <svg class="recs-icon recs-cataract-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        Refer patient to an ophthalmologist for a dilated slit-lamp eye examination.
+                    </li>
+                    <li class="recs-item">
+                        <svg class="recs-icon recs-cataract-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        Initiate refraction testing to assess current visual acuity degradation levels.
+                    </li>
+                    <li class="recs-item">
+                        <svg class="recs-icon recs-cataract-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        Review symptoms regarding visual glare, halo effects, and night vision capabilities.
+                    </li>
+                `;
+            } else {
+                banner.className = 'assessment-banner banner-normal';
+                icon.className = 'banner-icon banner-icon-normal';
+                icon.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>';
+                heading.innerText = 'Clear Crystalline Lens';
+                desc.className = 'banner-desc banner-desc-normal';
+                desc.innerText = 'Model signature shows clean optical transmission with no signs of pathological opacity. Annual screenings are advised.';
+
+                // Recs
+                recsList.innerHTML = `
+                    <li class="recs-item">
+                        <svg class="recs-icon recs-normal-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        Schedule follow-up diagnostics screening in 12 months as part of continuous care.
+                    </li>
+                    <li class="recs-item">
+                        <svg class="recs-icon recs-normal-icon" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"></polyline><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path></svg>
+                        Maintain eye health hygiene and suggest protective UV-absorbing wear outdoors.
+                    </li>
+                `;
             }
 
-            document.getElementById('result-confidence').innerText = data.confidence;
+            // Set Confidence SVG Circle
+            const percentVal = parseFloat(data.confidence);
+            const circleVal = document.getElementById('gauge-circle-val');
+            const confText = document.getElementById('gauge-confidence-text');
+            const gaugeTitle = document.getElementById('gauge-title');
             
-            // Set percents and bars
-            const normalPercent = (data.probabilities.Normal * 100).toFixed(1) + '%';
-            const cataractPercent = (data.probabilities.Cataract * 100).toFixed(1) + '%';
+            // strokeDasharray = 251.2
+            const offsetVal = 251.2 - (251.2 * percentVal) / 100;
+            circleVal.style.strokeDashoffset = offsetVal;
             
-            document.getElementById('normal-percent').innerText = normalPercent;
-            document.getElementById('cataract-percent').innerText = cataractPercent;
+            if (data.prediction === 'Cataract') {
+                circleVal.className.baseVal = 'gauge-circle-val gauge-val-cataract';
+                gaugeTitle.innerText = 'Cataract Certainty';
+            } else {
+                circleVal.className.baseVal = 'gauge-circle-val gauge-val-normal';
+                gaugeTitle.innerText = 'Clear Lens Certainty';
+            }
+            confText.innerText = data.confidence;
 
+            // Set Probabilities
+            const normalProb = (data.probabilities.Normal * 100).toFixed(1) + '%';
+            const cataractProb = (data.probabilities.Cataract * 100).toFixed(1) + '%';
+
+            document.getElementById('score-normal-text').innerText = normalProb;
+            document.getElementById('score-cataract-text').innerText = cataractProb;
+            
             setTimeout(() => {
-                document.getElementById('normal-bar').style.width = normalPercent;
-                document.getElementById('cataract-bar').style.width = cataractPercent;
+                document.getElementById('bar-normal').style.width = normalProb;
+                document.getElementById('bar-cataract').style.width = cataractProb;
             }, 50);
-
-        } catch (error) {
-            loading.style.display = 'none';
-            scanBtn.style.display = 'block';
-            alert('Prediction failed: ' + error.message);
         }
-    }
-</script>
+
+        resetBtn.addEventListener('click', () => {
+            clearSelection();
+        });
+    </script>
 </body>
 </html>

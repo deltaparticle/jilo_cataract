@@ -20,6 +20,11 @@ RUN python -c "from transformers import AutoImageProcessor, AutoModel; AutoImage
 # Copy models, configurations, static site, and API logic
 COPY . .
 
+# Environment variables to optimize single-threaded CPU execution in containerized environments
+ENV OMP_NUM_THREADS=1
+ENV MKL_NUM_THREADS=1
+ENV OPENBLAS_NUM_THREADS=1
+
 # Expose port (Railway overrides this with its PORT environment variable)
 EXPOSE 80
 

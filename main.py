@@ -1,6 +1,8 @@
 import os
 import pickle
 import torch
+# Set PyTorch threads to 1 to prevent severe CPU throttling/contention in containers
+torch.set_num_threads(1)
 import torch.nn as nn
 import numpy as np
 from PIL import Image

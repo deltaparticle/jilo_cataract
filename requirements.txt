@@ -1,0 +1,7 @@
+fastapi>=0.100.0
+uvicorn>=0.22.0
+python-multipart>=0.0.6
+scikit-learn==1.7.2
+pillow>=9.5.0
+transformers>=4.30.0
+numpy<2.0.0
